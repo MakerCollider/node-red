@@ -1,5 +1,5 @@
 /**
- * Copyright 2013, 2015 IBM Corp.
+ * Copyright 2013, 2016 IBM Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,7 +66,7 @@ RED.palette = (function() {
         var lineHeight = 20;
         var portHeight = 10;
 
-        var words = label.split(" ");
+        var words = label.split(/[ -]/);
 
         var displayLines = [];
 
@@ -134,14 +134,14 @@ RED.palette = (function() {
             d.id = "palette_node_"+nodeTypeId;
             d.type = nt;
 
-            var label;
-
-            if (typeof def.paletteLabel === "undefined") {
-                label = /^(.*?)([ -]in|[ -]out)?$/.exec(nt)[1];
-            } else {
-                label = (typeof def.paletteLabel === "function" ? def.paletteLabel.call(def) : def.paletteLabel)||"";
+            var label = /^(.*?)([ -]in|[ -]out)?$/.exec(nt)[1];
+            if (typeof def.paletteLabel !== "undefined") {
+                try {
+                    label = (typeof def.paletteLabel === "function" ? def.paletteLabel.call(def) : def.paletteLabel)||"";
+                } catch(err) {
+                    console.log("Definition error: "+nt+".paletteLabel",err);
+                }
             }
-
 
             $('<div/>',{class:"palette_label"+(def.align=="right"?" palette_label_right":"")}).appendTo(d);
 
@@ -149,7 +149,12 @@ RED.palette = (function() {
 
 
             if (def.icon) {
-                var icon_url = (typeof def.icon === "function" ? def.icon.call({}) : def.icon);
+                var icon_url = "arrow-in.png";
+                try {
+                    icon_url = (typeof def.icon === "function" ? def.icon.call({}) : def.icon);
+                } catch(err) {
+                    console.log("Definition error: "+nt+".icon",err);
+                }
                 var iconContainer = $('<div/>',{class:"palette_icon_container"+(def.align=="right"?" palette_icon_container_right":"")}).appendTo(d);
                 $('<div/>',{class:"palette_icon",style:"background-image: url(icons/"+icon_url+")"}).appendTo(iconContainer);
             }
@@ -210,12 +215,83 @@ RED.palette = (function() {
                 var help = '<div class="node-help">'+helpText+"</div>";
                 RED.sidebar.info.set(help);
             });
+            var chart = $("#chart");
+            var chartOffset = chart.offset();
+            var chartSVG = $("#chart>svg").get(0);
+            var activeSpliceLink;
+            var mouseX;
+            var mouseY;
+            var spliceTimer;
             $(d).draggable({
                 helper: 'clone',
                 appendTo: 'body',
                 revert: true,
                 revertDuration: 50,
-                start: function() {RED.view.focus();}
+                start: function() {RED.view.focus();},
+                stop: function() { d3.select('.link_splice').classed('link_splice',false); if (spliceTimer) { clearTimeout(spliceTimer); spliceTimer = null;}},
+                drag: function(e,ui) {
+                    // TODO: this is the margin-left of palette node. Hard coding
+                    // it here makes me sad
+                    ui.position.left += 17.5;
+                    if (def.inputs > 0 && def.outputs > 0) {
+                        mouseX = e.clientX - chartOffset.left+chart.scrollLeft();
+                        mouseY = e.clientY-chartOffset.top +chart.scrollTop();
+
+                        if (!spliceTimer) {
+                            spliceTimer = setTimeout(function() {
+                                var nodes = [];
+                                var bestDistance = Infinity;
+                                var bestLink = null;
+                                if (chartSVG.getIntersectionList) {
+                                    var svgRect = chartSVG.createSVGRect();
+                                    svgRect.x = mouseX;
+                                    svgRect.y = mouseY;
+                                    svgRect.width = 1;
+                                    svgRect.height = 1;
+                                    nodes = chartSVG.getIntersectionList(svgRect,chartSVG);
+                                    mouseX /= RED.view.scale();
+                                    mouseY /= RED.view.scale();
+                                } else {
+                                    // Firefox doesn't do getIntersectionList and that
+                                    // makes us sad
+                                    mouseX /= RED.view.scale();
+                                    mouseY /= RED.view.scale();
+                                    nodes = RED.view.getLinksAtPoint(mouseX,mouseY);
+                                }
+                                for (var i=0;i<nodes.length;i++) {
+                                    if (d3.select(nodes[i]).classed('link_background')) {
+                                        var length = nodes[i].getTotalLength();
+                                        for (var j=0;j<length;j+=10) {
+                                            var p = nodes[i].getPointAtLength(j);
+                                            var d2 = ((p.x-mouseX)*(p.x-mouseX))+((p.y-mouseY)*(p.y-mouseY));
+                                            if (d2 < 200 && d2 < bestDistance) {
+                                                bestDistance = d2;
+                                                bestLink = nodes[i];
+                                            }
+                                        }
+                                    }
+                                }
+                                if (activeSpliceLink && activeSpliceLink !== bestLink) {
+                                    d3.select(activeSpliceLink.parentNode).classed('link_splice',false);
+                                }
+                                if (bestLink) {
+                                    d3.select(bestLink.parentNode).classed('link_splice',true)
+                                } else {
+                                    d3.select('.link_splice').classed('link_splice',false);
+                                }
+                                if (activeSpliceLink !== bestLink) {
+                                    if (bestLink) {
+                                        $(ui.helper).data('splice',d3.select(bestLink).data()[0]);
+                                    } else {
+                                        $(ui.helper).removeData('splice');
+                                    }
+                                }
+                                activeSpliceLink = bestLink;
+                                spliceTimer = null;
+                            },200);
+                        }
+                    }
+                }
             });
 
             var nodeInfo = null;
@@ -292,7 +368,7 @@ RED.palette = (function() {
         }
 
         var re = new RegExp(val,'i');
-        $(".palette_node").each(function(i,el) {
+        $("#palette-container .palette_node").each(function(i,el) {
             var currentLabel = $(el).find(".palette_label").text();
             if (val === "" || re.test(el.id) || re.test(currentLabel)) {
                 $(this).show();

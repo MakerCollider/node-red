@@ -1,5 +1,5 @@
 /**
- * Copyright 2013, 2015 IBM Corp.
+ * Copyright 2013, 2016 IBM Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -116,6 +116,9 @@ RED.editor = (function() {
      */
     function validateNodeProperty(node,definition,property,value) {
         var valid = true;
+        if (/^\$\([a-zA-Z_][a-zA-Z0-9_]*\)$/.test(value)) {
+            return true;
+        }
         if ("required" in definition[property] && definition[property].required) {
             valid = value !== "";
         }
@@ -126,8 +129,8 @@ RED.editor = (function() {
             if (!value || value == "_ADD_") {
                 valid = definition[property].hasOwnProperty("required") && !definition[property].required;
             } else {
-                var v = RED.nodes.node(value).valid;
-                valid = (v==null || v);
+                var configNode = RED.nodes.node(value);
+                valid = (configNode !== null && (configNode.valid == null || configNode.valid));
             }
         }
         return valid;
@@ -150,9 +153,9 @@ RED.editor = (function() {
                     node.ports.pop();
                 }
                 RED.nodes.eachLink(function(l) {
-                        if (l.source === node && l.sourcePort >= node.outputs) {
-                            removedLinks.push(l);
-                        }
+                    if (l.source === node && l.sourcePort >= node.outputs) {
+                        removedLinks.push(l);
+                    }
                 });
             } else if (node.outputs > node.ports.length) {
                 while (node.outputs > node.ports.length) {
@@ -305,7 +308,7 @@ RED.editor = (function() {
                                 }
                                 editing_node.dirty = true;
                                 validateNode(editing_node);
-                                RED.view.redraw();
+                                RED.view.redraw(true);
                             }
                             $( this ).dialog( "close" );
                         }
@@ -348,6 +351,10 @@ RED.editor = (function() {
                 resize: function(e,ui) {
                     if (editing_node) {
                         $(this).dialog('option',"sizeCache-"+editing_node.type,ui.size);
+                        if (editing_node._def.oneditresize) {
+                            var form = $("#dialog-form");
+                            editing_node._def.oneditresize.call(editing_node,{width:form.width(),height:form.height()});
+                        }
                     }
                 },
                 open: function(e) {
@@ -363,6 +370,12 @@ RED.editor = (function() {
                         if (size) {
                             $(this).dialog('option','width',size.width);
                             $(this).dialog('option','height',size.height);
+                        }
+                        if (editing_node._def.oneditresize) {
+                            setTimeout(function() {
+                                var form = $("#dialog-form");
+                                editing_node._def.oneditresize.call(editing_node,{width:form.width(),height:form.height()});
+                            },0);
                         }
                     }
                 },
@@ -385,6 +398,12 @@ RED.editor = (function() {
                     }
                     editing_node = null;
                 }
+        }).parent().on('keydown', function(evt) {
+            if (evt.keyCode === $.ui.keyCode.ESCAPE && (evt.metaKey || evt.ctrlKey)) {
+                $("#node-dialog-cancel").click();
+            } else if (evt.keyCode === $.ui.keyCode.ENTER && (evt.metaKey || evt.ctrlKey)) {
+                $("#node-dialog-ok").click();
+            }
         });
     }
 
@@ -935,19 +954,19 @@ RED.editor = (function() {
                                 RED.nodes.add(editing_config_node);
                             }
 
-                            updateConfigNodeSelect(configProperty,configType,editing_config_node.id);
-
-                            if (configTypeDef.credentials) {
-                                updateNodeCredentials(editing_config_node,configTypeDef.credentials,"node-config-input");
-                            }
                             if (configTypeDef.oneditsave) {
                                 configTypeDef.oneditsave.call(editing_config_node);
+                            }
+                            if (configTypeDef.credentials) {
+                                updateNodeCredentials(editing_config_node,configTypeDef.credentials,"node-config-input");
                             }
                             validateNode(editing_config_node);
                             for (var i=0;i<editing_config_node.users.length;i++) {
                                 var user = editing_config_node.users[i];
                                 validateNode(user);
                             }
+
+                            updateConfigNodeSelect(configProperty,configType,editing_config_node.id);
 
                             RED.nodes.dirty(true);
                             RED.view.redraw(true);
@@ -1008,6 +1027,12 @@ RED.editor = (function() {
                         cancel: '.ui-dialog-content, .ui-dialog-titlebar-close, #node-config-dialog-scope-container'
                     });
                 }
+        }).parent().on('keydown', function(evt) {
+            if (evt.keyCode === $.ui.keyCode.ESCAPE && (evt.metaKey || evt.ctrlKey)) {
+                $("#node-config-dialog-cancel").click();
+            } else if (evt.keyCode === $.ui.keyCode.ENTER && (evt.metaKey || evt.ctrlKey)) {
+                $("#node-config-dialog-ok").click();
+            }
         });
     }
 
@@ -1079,7 +1104,7 @@ RED.editor = (function() {
                                 RED.history.push(historyEvent);
                             }
                             editing_node.dirty = true;
-                            RED.view.redraw();
+                            RED.view.redraw(true);
                         }
                         $( this ).dialog( "close" );
                     }
@@ -1128,6 +1153,12 @@ RED.editor = (function() {
                 height -= (parseInt($("#subflow-dialog>form").css("marginTop"))+parseInt($("#subflow-dialog>form").css("marginBottom")));
                 $(".node-text-editor").css("height",height+"px");
                 subflowEditor.resize();
+            }
+        }).parent().on('keydown', function(evt) {
+            if (evt.keyCode === $.ui.keyCode.ESCAPE && (evt.metaKey || evt.ctrlKey)) {
+                $("#subflow-dialog-cancel").click();
+            } else if (evt.keyCode === $.ui.keyCode.ENTER && (evt.metaKey || evt.ctrlKey)) {
+                $("#subflow-dialog-ok").click();
             }
         });
     }
