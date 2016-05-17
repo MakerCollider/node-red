@@ -15,8 +15,23 @@
 -->
 
 <script type="text/x-red" data-help-name="template">
-    <p>这个节点用来按照模板创建一个新的消息。</p>
-    <p>下面的例子使用了 <i><a href="http://mustache.github.io/mustache.5.html" target="_new">mustache</a></i> 格式</p>
+<h3 id="模板节点"><a name="模板节点" href="#模板节点"></a>模板节点</h3>
+<p>这个节点用来按照模板创建一个新的消息。</p>
+<h4 id="配置参数"><a name="配置参数" href="#配置参数"></a>配置参数</h4>
+<ol>
+<li>Name：节点名字</li>
+<li>Template : 模板</li>
+<li>Property : 属性</li>
+</ol>
+<h4 id="输入"><a name="输入" href="#输入"></a>输入</h4>
+<ol>
+<li>msg.payload</li></ol>
+<h4 id="输出"><a name="输出" href="#输出"></a>输出</h4>
+<ol>
+<li>处理之后的结果</li></ol>
+<h4 id="使用方法"><a name="使用方法" href="#使用方法"></a>使用方法</h4>
+<ol>
+  <p>下面的例子使用了 <i><a href="http://mustache.github.io/mustache.5.html" target="_new">mustache</a></i> 格式</p>
     <p>例如，如果模板的写法是:</p>
     <pre>Hello {{name}}. Today is {{date}}</pre>
     <p>收到的消息是:
@@ -27,5 +42,6 @@
 }</pre>
     <p>则输出结果的msg.payload为:
     <pre>Hello Fred. Today is Monday</pre>
+</ol>
 </script>
 

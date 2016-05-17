@@ -276,7 +276,7 @@ module.exports = function(RED) {
                     }
                     if (node.doend === true) {
                         end = true;
-                        if (client) { node.status({}); client.destroy(); }
+                        if (client) { client.end(); }
                     }
                 }
             });
@@ -300,17 +300,6 @@ module.exports = function(RED) {
                             client.write(new Buffer(msg.payload,'base64'));
                         } else {
                             client.write(new Buffer(""+msg.payload));
-                        }
-                    }
-                }
-                else {
-                    for (var i in connectionPool) {
-                        if (Buffer.isBuffer(msg.payload)) {
-                            connectionPool[i].write(msg.payload);
-                        } else if (typeof msg.payload === "string" && node.base64) {
-                            connectionPool[i].write(new Buffer(msg.payload,'base64'));
-                        } else {
-                            connectionPool[i].write(new Buffer(""+msg.payload));
                         }
                     }
                 }
@@ -449,7 +438,7 @@ module.exports = function(RED) {
                                         msg.payload = new Buffer(i+1);
                                         buf.copy(msg.payload,0,0,i+1);
                                         node.send(msg);
-                                        if (client) { node.status({}); client.destroy(); }
+                                        //if (client) { client.end(); }
                                     }, node.splitc);
                                     i = 0;
                                     buf[0] = data[j];
@@ -463,7 +452,7 @@ module.exports = function(RED) {
                                     msg.payload = new Buffer(i);
                                     buf.copy(msg.payload,0,0,i);
                                     node.send(msg);
-                                    if (client) { node.status({}); client.destroy(); }
+                                    //if (client) { client.end(); }
                                     i = 0;
                                 }
                             }
@@ -475,7 +464,7 @@ module.exports = function(RED) {
                                     msg.payload = new Buffer(i);
                                     buf.copy(msg.payload,0,0,i);
                                     node.send(msg);
-                                    if (client) { node.status({}); client.destroy(); }
+                                    //if (client) { client.end(); }
                                     i = 0;
                                 }
                             }

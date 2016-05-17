@@ -1,5 +1,5 @@
 /**
- * Copyright 2013, 2016 IBM Corp.
+ * Copyright 2013,2015 IBM Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,6 @@ module.exports = function(RED) {
         this.brokerurl = "";
         this.connected = false;
         this.connecting = false;
-        this.closing = false;
         this.options = {};
         this.queue = [];
         this.subscriptions = {};
@@ -76,7 +75,7 @@ module.exports = function(RED) {
             this.verifyservercert = false;
         }
         if (typeof this.keepalive === 'undefined'){
-            this.keepalive = 60;
+            this.keepalive = 15;
         } else if (typeof this.keepalive === 'string') {
             this.keepalive = Number(this.keepalive);
         }
@@ -137,17 +136,11 @@ module.exports = function(RED) {
             }
         };
 
-        this.deregister = function(mqttNode,done){
+        this.deregister = function(mqttNode){
             delete node.users[mqttNode.id];
-            if (node.closing) {
-                return done();
-            }
             if (Object.keys(node.users).length === 0) {
-                if (node.client) {
-                    return node.client.end(done);
-                }
+                node.client.end();
             }
-            done();
         };
 
         this.connect = function () {
@@ -184,14 +177,15 @@ module.exports = function(RED) {
                     if (node.birthMessage) {
                         node.publish(node.birthMessage);
                     }
-                });
-                node.client.on("reconnect", function() {
-                    for (var id in node.users) {
-                        if (node.users.hasOwnProperty(id)) {
-                            node.users[id].status({fill:"yellow",shape:"ring",text:"common.status.connecting"});
-                        }
+
+                    // Send any queued messages
+                    while(node.queue.length) {
+                        var msg = node.queue.shift();
+                        //console.log(msg);
+                        node.publish(msg);
                     }
-                })
+                });
+
                 // Register disconnect handlers
                 node.client.on('close', function () {
                     if (node.connected) {
@@ -271,13 +265,17 @@ module.exports = function(RED) {
                     retain: msg.retain || false
                 };
                 node.client.publish(msg.topic, msg.payload, options, function (err){return});
+            } else {
+                if (!node.connecting) {
+                    node.connect();
+                }
+                node.queue.push(msg);
             }
         };
 
         this.on('close', function(done) {
-            this.closing = true;
             if (this.connected) {
-                this.client.once('close', function() {
+                this.client.on('close', function() {
                     done();
                 });
                 this.client.end();
@@ -300,14 +298,10 @@ module.exports = function(RED) {
         this.topic = n.topic;
         this.broker = n.broker;
         this.brokerConn = RED.nodes.getNode(this.broker);
-        if (!/^(#$|(\+|[^+#]*)(\/(\+|[^+#]*))*(\/(\+|#|[^+#]*))?$)/.test(this.topic)) {
-            return this.warn(RED._("mqtt.errors.invalid-topic"));
-        }
         var node = this;
         if (this.brokerConn) {
             this.status({fill:"red",shape:"ring",text:"common.status.disconnected"});
             if (this.topic) {
-                node.brokerConn.register(this);
                 this.brokerConn.subscribe(this.topic,2,function(topic,payload,packet) {
                     if (isUtf8(payload)) { payload = payload.toString(); }
                     var msg = {topic:topic,payload:payload, qos: packet.qos, retain: packet.retain};
@@ -319,14 +313,15 @@ module.exports = function(RED) {
                 if (this.brokerConn.connected) {
                     node.status({fill:"green",shape:"dot",text:"common.status.connected"});
                 }
+                node.brokerConn.register(this);
             }
             else {
                 this.error(RED._("mqtt.errors.not-defined"));
             }
-            this.on('close', function(done) {
+            this.on('close', function() {
                 if (node.brokerConn) {
                     node.brokerConn.unsubscribe(node.topic,node.id);
-                    node.brokerConn.deregister(node,done);
+                    node.brokerConn.deregister(node);
                 }
             });
         } else {
@@ -370,8 +365,8 @@ module.exports = function(RED) {
                 node.status({fill:"green",shape:"dot",text:"common.status.connected"});
             }
             node.brokerConn.register(node);
-            this.on('close', function(done) {
-                node.brokerConn.deregister(node,done);
+            this.on('close', function() {
+                node.brokerConn.deregister(node);
             });
         } else {
             this.error(RED._("mqtt.errors.missing-config"));

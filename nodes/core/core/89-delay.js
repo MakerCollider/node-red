@@ -147,17 +147,10 @@ module.exports = function(RED) {
                 node.status({});
             });
 
-        } else if ((this.pauseType === "queue") || (this.pauseType === "timed")) {
+        } else if (this.pauseType === "queue") {
             this.intervalID = setInterval(function() {
-                if (this.pauseType === "queue") {
-                    if (node.buffer.length > 0) {
-                        node.send(node.buffer.shift()); // send the first on the queue
-                    }
-                }
-                else {
-                    while (node.buffer.length > 0) {    // send the whole queue
-                        node.send(node.buffer.shift());
-                    }
+                if (node.buffer.length > 0) {
+                    node.send(node.buffer.shift()); // send the first on the queue
                 }
                 node.status({text:node.buffer.length});
             },node.rate);
