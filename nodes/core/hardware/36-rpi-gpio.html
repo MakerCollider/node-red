@@ -61,13 +61,7 @@
     <div class="form-tips"><span data-i18n="[html]rpi-gpio.tip.in"></span></div>
 </script>
 
-<script type="text/x-red" data-help-name="rpi-gpio in">
-    <p>Raspberry Pi input node. Generates a <b>msg.payload</b> with either a 0 or 1 depending on the state of the input pin. Requires the gpio command to work.</p>
-    <p>You may also enable the input pullup resistor or the pulldown resistor.</p>
-    <p>The <b>msg.topic</b> is set to <i>pi/{the pin number}</i></p>
-    <p>Requires the RPi.GPIO python library version 0.5.8 (or better) in order to work.</p>
-    <p><b>Note:</b> we are using the actual physical pin numbers on connector P1 as they are easier to locate.</p>
-    </script>
+
 
 <script type="text/javascript">
     var pinsInUse = {};
@@ -202,14 +196,6 @@
     <div class="form-tips" id="pwm-tip"><span data-i18n="[html]rpi-gpio.tip.pwm"></span></div>
 </script>
 
-<script type="text/x-red" data-help-name="rpi-gpio out">
-    <p>Raspberry Pi output node. Expects a <b>msg.payload</b> with either a 0 or 1 (or true or false). Requires the gpio command to work.</p>
-    <p>Will set the selected physical pin high or low depending on the value passed in.</p>
-    <p>The initial value of the pin at deploy time can also be set to 0 or 1.</p>
-    <p>When using PWM mode - expects an input value of a number 0 - 100.</p>
-    <p>Requires the RPi.GPIO python library version 0.5.8 (or better) in order to work.</p>
-    <p><b>Note:</b> we are using the actual physical pin numbers on connector P1 as they are easier to locate.</p>
-</script>
 
 <script type="text/javascript">
     var pinsInUse = {};
@@ -338,15 +324,6 @@
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="rpi-mouse">
-    <p>Raspberry Pi mouse button node. Requires a USB mouse.</p>
-    <p>Generates a <b>msg.payload</b> with
-    either a 1 or 0 when the selected mouse button is pressed and released</p>
-    <p>Also sets <b>msg.button</b> to the code value
-    <ul><li>1 = left</li><li>2 = right</li><li>4 = middle</li></ul>
-    so you can work out which button or combination was pressed.</p>
-    <p>And sets <b>msg.topic</b> to <i>pi/mouse</i>.</p>
-</script>
 
 <script type="text/javascript">
     RED.nodes.registerType('rpi-mouse',{

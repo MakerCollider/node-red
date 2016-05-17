@@ -26,11 +26,6 @@
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="mqtt in">
-    <p>MQTT input node. Connects to a broker and subscribes to the specified topic. The topic may contain MQTT wildcards.</p>
-    <p>Outputs an object called <b>msg</b> containing <b>msg.topic, msg.payload, msg.qos</b> and <b>msg.retain</b>.</p>
-    <p><b>msg.payload</b> is usually a string, but can also be a binary buffer.</p>
-</script>
 
 <script type="text/javascript">
     RED.nodes.registerType('mqtt in',{
@@ -86,11 +81,7 @@
     <div class="form-tips"><span data-i18n="mqtt.tip"></span></div>
 </script>
 
-<script type="text/x-red" data-help-name="mqtt out">
-    <p>Connects to a MQTT broker and publishes <b>msg.payload</b> either to the <b>msg.topic</b> or to the topic specified in the edit window. The value in the edit window has precedence.</p>
-    <p>Likewise QoS and/or retain values in the edit panel will overwrite any <b>msg.qos</b> and <b>msg.retain</b> properties. If nothing is set they default to <i>0</i> and <i>false</i> respectively.</p>
-    <p>If <b>msg.payload</b> contains an object it will be stringified before being sent.</p>
-</script>
+
 
 <script type="text/javascript">
     RED.nodes.registerType('mqtt out',{
