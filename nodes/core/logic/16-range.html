@@ -47,13 +47,7 @@
     <div class="form-tips" id="node-tip"><span data-i18n="range.tip"></span></div>
 </script>
 
-<script type="text/x-red" data-help-name="range">
-    <p>A simple function node to remap numeric input values to another scale.</p>
-    <p>Currently only does a linear scaling.</p>
-    <p><b>Note:</b> This only operates on <b>numbers</b>. Anything else will try to be made into a number and rejected if that fails.</p>
-    <p><i>Scale and limit to target range</i> means that the result will never be outside the range specified within the result range.</p>
-    <p><i>Scale and wrap within the target range</i> means that the result will essentially be a "modulo-style" wrap-around within the result range.</p>
-</script>
+
 
 <script type="text/javascript">
     RED.nodes.registerType('range', {

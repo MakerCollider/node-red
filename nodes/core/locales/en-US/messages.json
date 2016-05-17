@@ -38,6 +38,8 @@
             "palette": "Inject"
         },
         "timestamp": "timestamp",
+        "string": "string",
+        "blank": "blank",
         "none": "none",
         "interval": "interval",
         "interval-time": "interval between times",
@@ -46,7 +48,6 @@
         "minutes": "minutes",
         "hours": "hours",
         "between": "between",
-        "previous": "previous value",
         "at": "at",
         "and": "and",
         "every": "every",
@@ -145,12 +146,8 @@
     "template": {
         "label": {
             "template": "Template",
-            "palette": "Template",
-            "property": "Set property",
-            "format": "Syntax Highlight",
-            "syntax": "Format",
-            "mustache": "Mustache template",
-            "plain": "Plain text"
+            "property": "Property",
+            "palette": "Template"
         },
         "templatevalue": "This is the payload: {{payload}} !"
     },
@@ -158,10 +155,9 @@
         "action": "Action",
         "for": "For",
         "delaymsg": "Delay message",
-        "randomdelay": "Random delay",
+        "ramdomdelay": "Random delay",
         "limitrate": "Limit rate to",
         "fairqueue": "Topic based fair queue",
-        "timedqueue": "Timed release queue",
         "milisecs": "Miliseconds",
         "secs": "Seconds",
         "sec": "Second",
@@ -180,8 +176,7 @@
             "limit": "limit",
             "random": "ramdom",
             "queue": "queue",
-            "palette": "Delay",
-            "timed": "releases per"
+            "palette": "Delay"
         },
         "error": {
             "buffer": "buffer exceeded 1000 messages"
@@ -192,9 +187,8 @@
         "then": "then",
         "then-send": "then send",
         "output": {
-            "string": "the string",
-            "number": "the number",
-            "existing": "the existing msg.payload",
+            "string": "the string payload",
+            "existing": "the existing message",
             "nothing": "nothing"
         },
         "wait-reset": "wait to be reset",
@@ -205,14 +199,12 @@
             "m": "Minutes",
             "h": "Hours"
         },
-        "extend": " extend delay if new message arrives",
-        "tip": "The node can also be reset by sending a message with the <code>msg.reset</code> property set to any value.",
+        "extend": "extend delay if new message arrives",
+        "tip": "The node can be reset by sending a message with the <b>msg.reset</b> property set",
         "label": {
             "trigger": "trigger",
             "trigger-block": "trigger & block",
-            "palette": "Trigger",
-            "reset": "and reset if msg.payload == ",
-            "resetprompt": "(optional reset value)"
+            "palette": "Trigger"
         }
     },
     "comment": {
@@ -405,8 +397,7 @@
             "using": "using",
             "output": "Output",
             "group": "Group",
-            "interface": "Local IP",
-            "interfaceprompt": "(optional) local ip address to bind to",
+            "interface": "Interface",
             "send": "Send a",
             "toport": "to port",
             "address": "Address",
@@ -435,8 +426,7 @@
         },
         "tip": {
             "in": "Tip: Make sure your firewall will allow the data in.",
-            "out": "Tip: leave address and port blank if you want to set using <code>msg.ip</code> and <code>msg.port</code>.",
-            "port": "Ports already in use: "
+            "out": "Tip: leave address and port blank if you want to set using <b>msg.ip</b> and <b>msg.port</b>."
         },
         "status": {
             "listener-at": "udp listener at __host__:__port__",
@@ -455,8 +445,7 @@
             "interface": "Must be ip address of the required interface",
             "ip-notset": "udp: ip address not set",
             "port-notset": "udp: port not set",
-            "port-invalid": "udp: port number not valid",
-            "alreadyused": "udp: port already in use"
+            "port-invalid": "udp: port number not valid"
         }
     },
     "switch": {
@@ -500,8 +489,7 @@
             "replace": "Replace with"
         },
         "errors": {
-            "invalid-from": "Invalid 'from' property: __error__",
-            "invalid-json": "Invalid 'to' JSON property"
+            "invalid-from": "Invalid 'from' property: __error__"
         }
     },
     "range": {
@@ -576,8 +564,7 @@
         },
         "output": {
             "html": "the html content of the elements",
-            "text": "only the text content of the elements",
-            "attr": "an object of any attributes of the elements"
+            "text": "only the text content of the elements"
         },
         "format": {
             "single": "as a single message containing an array",
@@ -615,10 +602,8 @@
             "readinitial": "Read initial state of pin on deploy/restart?",
             "type": "Type",
             "initpin": "Initialise pin state?",
-            "debounce": "Debounce",
             "button": "Button",
             "pimouse": "Pi Mouse",
-            "pikeyboard": "Pi Keyboard",
             "left": "Left",
             "right": "Right",
             "middle": "Middle",
@@ -679,13 +664,8 @@
     "tail": {
         "label": {
             "filename": "Filename",
-            "palette": "Tail",
-            "type": "File type",
-            "splitlines": "Split lines on \\n?"
-        },
-        "action": {
-            "text": "Text - returns String",
-            "binary": "Binary - returns Buffer"
+            "splitlines": "Split lines on \\n?",
+            "palette": "Tail"
         },
         "errors": {
             "windowsnotsupport": "Not currently supported on Windows."

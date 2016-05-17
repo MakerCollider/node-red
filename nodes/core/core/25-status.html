@@ -39,7 +39,19 @@
         <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
     </div>
 </script>
+<script type="text/x-red" data-help-name="status">
+    <p>Send status messages from other nodes on the same tab.</p>
+    <p>The message sent by this node will have a <code>status</code> property
+    with the following attributes:
+        <ul>
+            <li><code>text</code> : the status text</li>
+            <li><code>source.type</code> : the type of the node that reported status</li>
+            <li><code>source.id</code> : the id of the node that reported status</li>
+            <li><code>source.name</code> : the name, if set, of the node that reported status</li>
 
+        </ul>
+   </p>
+</script>
 <style>
 #node-input-status-target-container {
     position: relative;

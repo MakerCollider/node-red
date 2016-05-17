@@ -1,8 +1,0 @@
-{//mqtt.label.palette-out
-    "mqtt": {
-        "label": {
-            "palette-in": "mqtt in",
-            "palette-out": "mqtt out"
-        }
-    }
-}

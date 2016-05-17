@@ -1,9 +1,0 @@
-//udp.label.palette-out
-{
-    "udp": {
-        "label": {
-            "palette-in": "udp输入",
-            "palette-out": "udp输出"
-        }
-    }
-}
