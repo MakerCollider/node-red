@@ -26,7 +26,7 @@ var defaultContext = {
         favicon: "favicon.ico"
     },
     header: {
-        title: "SMartNode",
+        title: "SmartNode",
         image: "red/images/node-red.png"
     },
     asset: {
